@@ -81,15 +81,12 @@ def display_cli_command(response_data: Dict[str, Any]):
     danger_info = danger_map.get(danger_level, danger_map[5])
 
     # --- 2. Build the nested panel structure ---
-
-    # Step 2a: Format the command string for display
     command_display_str = (
         "\n".join(f"{i + 1}. {cmd}" for i, cmd in enumerate(commands))
         if len(commands) > 1
         else commands[0]
     )
 
-    # Step 2b: Create the inner panel for the commands
     command_sub_panel = Panel(
         Text(command_display_str, style="bright_white"),
         title="[bold blue]Bash Command(s)[/bold blue]",
@@ -98,18 +95,15 @@ def display_cli_command(response_data: Dict[str, Any]):
         padding=(1, 2),
     )
 
-    # Step 2c: Create the text for the danger level
     danger_text = Text.from_markup(
         f"\n[{danger_info['color']}]"
         f"Danger Level: {danger_level} - {danger_info['description']}"
         f"[/{danger_info['color']}]"
     )
 
-    # Step 2d: Group the inner panel and the text together
     # A Group makes multiple rich renderables act as a single unit
     panel_content = Group(command_sub_panel, danger_text)
 
-    # Step 2e: Create the main, outer panel
     main_panel = Panel(
         panel_content,
         title="[bold cyan]🤖 NL2SH Command Center[/bold cyan]",
