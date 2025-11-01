@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 
-from nl2sh.utils import CLIArgs, cmd
+from nl2sh.utils import CLIArgs, cmd, display_cli_command
 
 
 def main():
@@ -14,4 +14,5 @@ def main():
 
     # Tool calling
     if args.prompt:
-        asyncio.run(cmd(args.prompt))
+        content_json = asyncio.run(cmd(args.prompt))
+        display_cli_command(content_json)

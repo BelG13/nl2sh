@@ -1,0 +1,38 @@
+[
+  {
+    "nl": "list all files in the current directory, including hidden ones, in a long format",
+    "output": ":{\n    \"command\": [\"ls -la\"],\n    \"danger_level\": 0\n}"
+  },
+  {
+    "nl": "find all python files in my home directory that have been modified in the last 2 days",
+    "output": ":{\n    \"command\": [\"find ~/ -mtime -2 -name '*.py'\"],\n    \"danger_level\": 1\n}"
+  },
+  {
+    "nl": "create a new directory called 'my_new_project'",
+    "output": ":{\n    \"command\": [\"mkdir my_new_project\"],\n    \"danger_level\": 0\n}"
+  },
+  {
+    "nl": "create a new folder for my project and then enter it",
+    "output": ":{\n    \"command\": [\"mkdir my_project\", \"cd my_project\"],\n    \"danger_level\": 1\n}"
+  },
+  {
+    "nl": "recursively delete the 'old_backups' folder and everything inside it",
+    "output": ":{\n    \"command\": [\"rm -rf old_backups\"],\n    \"danger_level\": 5\n}"
+  },
+  {
+    "nl": "make my script 'run.sh' executable and then run it",
+    "output": ":{\n    \"command\": [\"chmod +x run.sh\", \"./run.sh\"],\n    \"danger_level\": 2\n}"
+  },
+  {
+    "nl": "forcefully stop the process with PID 4582",
+    "output": ":{\n    \"command\": [\"kill -9 4582\"],\n    \"danger_level\": 4\n}"
+  },
+  {
+    "nl": "copy all log files into the 'archive' directory and then delete the originals",
+    "output": ":{\n    \"command\": [\"cp *.log archive/\", \"rm *.log\"],\n    \"danger_level\": 3\n}"
+  },
+  {
+    "nl": "update my package list and then upgrade all packages on my debian system",
+    "output": ":{\n    \"command\": [\"sudo apt-get update\", \"sudo apt-get upgrade -y\"],\n    \"danger_level\": 4\n}"
+  }
+]

@@ -1,5 +1,6 @@
 import threading
 
+from nl2sh.models.config import system_prompt
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 from typing import Tuple
 
@@ -24,7 +25,7 @@ def generate_stream(model, tokenizer, prompt):
     messages = [
         {
             "role": "system",
-            "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
+            "content": system_prompt,
         },
         {"role": "user", "content": prompt},
     ]

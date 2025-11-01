@@ -1,7 +1,18 @@
 import httpx
+import json
+import re
+import os
+import subprocess
+
+from argparse import Namespace
+from json_repair import repair_json
+from typing import Dict, Any
 
 from rich import print
-from argparse import Namespace
+from rich.console import Console, Group
+from rich.panel import Panel
+from rich.prompt import Confirm
+from rich.text import Text
 
 
 class CLIArgs:
@@ -10,13 +21,166 @@ class CLIArgs:
         self.prompt: str = args.prompt
 
 
-async def cmd(prompt):
+async def cmd(prompt: str):
     """Prompt the model to generate a command."""
 
     url = "http://127.0.0.1:8000/api/generate-stream"
     data = {"prompt": prompt}
+    content = ""
 
+    # Stream the text in the terminal
+    # TODO: remove streaming - not needed anymore.
     async with httpx.AsyncClient() as client:
         async with client.stream("POST", url, json=data) as response:
             async for chunk in response.aiter_text():
-                print(f"[magenta]{chunk}[/magenta]", end="")
+                content += chunk
+                # print(f"[magenta]{chunk}[/magenta]", end="")
+
+    # Parse the result
+    content_json = re.findall(pattern=r"{.*}", string=content, flags=re.DOTALL)
+    if not len(content_json):
+        print("[red]Error while searching for the match.[/red]")
+        return {}
+
+    if not (content_json := repair_json(content_json[0])):
+        print("[red]Error while cleaning the slm response")
+        return {}
+
+    return json.loads(content_json)
+
+
+def display_cli_command(response_data: Dict[str, Any]):
+    """
+    Displays the model's response in a nested panel layout, asks for
+    confirmation, and executes the commands, showing their output in
+    separate panels.
+    """
+    console = Console()
+
+    # --- 1. Extract data and set up danger level styles ---
+    commands = response_data.get("command", [])
+    danger_level = response_data.get("danger_level", 0)
+
+    if not commands:
+        console.print(
+            Panel(
+                "[bold red]Error: The model did not return any commands.[/bold red]",
+                border_style="red",
+            )
+        )
+        return
+
+    danger_map = {
+        0: {"color": "green", "description": "Harmless (Read-only)"},
+        1: {"color": "bright_green", "description": "Low Risk (Creation/Navigation)"},
+        2: {"color": "yellow", "description": "Moderate Risk (Permissions/Execution)"},
+        3: {"color": "orange3", "description": "High Risk (Deletion/Overwrite)"},
+        4: {"color": "dark_orange", "description": "Very High Risk (System Changes)"},
+        5: {"color": "bold red", "description": "Maximum Danger (Irreversible)"},
+    }
+    danger_info = danger_map.get(danger_level, danger_map[5])
+
+    # --- 2. Build the nested panel structure ---
+
+    # Step 2a: Format the command string for display
+    command_display_str = (
+        "\n".join(f"{i + 1}. {cmd}" for i, cmd in enumerate(commands))
+        if len(commands) > 1
+        else commands[0]
+    )
+
+    # Step 2b: Create the inner panel for the commands
+    command_sub_panel = Panel(
+        Text(command_display_str, style="bright_white"),
+        title="[bold blue]Bash Command(s)[/bold blue]",
+        border_style="blue",
+        expand=False,
+        padding=(1, 2),
+    )
+
+    # Step 2c: Create the text for the danger level
+    danger_text = Text.from_markup(
+        f"\n[{danger_info['color']}]"
+        f"Danger Level: {danger_level} - {danger_info['description']}"
+        f"[/{danger_info['color']}]"
+    )
+
+    # Step 2d: Group the inner panel and the text together
+    # A Group makes multiple rich renderables act as a single unit
+    panel_content = Group(command_sub_panel, danger_text)
+
+    # Step 2e: Create the main, outer panel
+    main_panel = Panel(
+        panel_content,
+        title="[bold cyan]🤖 NL2SH Command Center[/bold cyan]",
+        border_style="cyan",
+        padding=1,
+    )
+
+    # --- 3. Display the main panel and ask for confirmation ---
+    console.print(main_panel)
+
+    try:
+        user_confirmed = Confirm.ask(
+            "\nDo you want to execute the command(s)?", default=False
+        )
+    except KeyboardInterrupt:
+        console.print("\n[bold red]❌ Execution cancelled by user.[/bold red]")
+        return
+
+    # --- 4. Execute commands if confirmed ---
+    if not user_confirmed:
+        console.print("[bold red]❌ Execution cancelled by user.[/bold red]")
+        return
+
+    console.print("\n[bold green]🚀 Executing...[/bold green]")
+    for cmd in commands:
+        console.print(f"▶️  Running: [yellow]{cmd}[/yellow]")
+
+        # Special handling for 'cd' remains
+        if cmd.strip().startswith("cd "):
+            try:
+                path = cmd.strip().split(maxsplit=1)[1]
+                os.chdir(os.path.expanduser(path))
+                console.print(
+                    Panel(
+                        f"Changed directory to: {os.getcwd()}",
+                        title="[green]✅ Success[/green]",
+                        border_style="green",
+                    )
+                )
+            except Exception as e:
+                console.print(
+                    Panel(
+                        f"Error executing 'cd': {e}",
+                        title="[red]❌ Error[/red]",
+                        border_style="red",
+                    )
+                )
+                break
+            continue
+
+        # Use subprocess.run to wait for the command to complete and capture its output
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+        # Display stdout in a success panel
+        if result.stdout:
+            console.print(
+                Panel(
+                    result.stdout.strip(),
+                    title=f"[green]✅ Output for: {cmd}[/green]",
+                    border_style="green",
+                )
+            )
+
+        # Display stderr in an error panel and halt execution
+        if result.stderr:
+            console.print(
+                Panel(
+                    result.stderr.strip(),
+                    title=f"[red]❌ Error for: {cmd}[/red]",
+                    border_style="red",
+                )
+            )
+            console.print("[bold red]Halting execution of further commands.[/bold red]")
+            break

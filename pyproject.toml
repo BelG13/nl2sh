@@ -13,7 +13,8 @@ dependencies = [
     "transformers",
     "torch",
     "accelerate",
-    "rich"
+    "rich",
+    "json-repair"
 ]
 
 [project.scripts]

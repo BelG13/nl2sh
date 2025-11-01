@@ -1,8 +1,8 @@
-from fastapi.responses import StreamingResponse
 import asyncio
 
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Request
-from nl2sh.model import (
+from nl2sh.models import (
     get_model_and_tokenizer,
     generate_stream,
 )
