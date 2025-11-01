@@ -1,0 +1,47 @@
+import threading
+
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from typing import Tuple
+
+
+def get_model_and_tokenizer() -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
+    """Load the model and the tokenizer."""
+
+    model_name = "Qwen/Qwen2.5-0.5B-Instruct"
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name, device_map="auto", torch_dtype="auto"
+    )
+    return model, tokenizer
+
+
+def generate_stream(model, tokenizer, prompt):
+    """Prepare and start the generation."""
+
+    # Prepare the system prompt
+    messages = [
+        {
+            "role": "system",
+            "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
+        },
+        {"role": "user", "content": prompt},
+    ]
+
+    # Apply the template
+    text = tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+
+    streamer = TextIteratorStreamer(
+        tokenizer=tokenizer, skip_prompt=True, skip_special_tokens=True
+    )
+    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+    generation_kwargs = {**model_inputs, "max_new_tokens": 512, "streamer": streamer}
+
+    # Starting the thread for generating the tokens
+    t = threading.Thread(target=model.generate, kwargs=generation_kwargs)
+    t.start()
+
+    return streamer

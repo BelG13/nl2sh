@@ -1,13 +1,20 @@
 [project]
-name = 'nl2sh'
-version = '0.1.0'
-description = 'nl2sh tool using small language models.'
-authors = ["Giovanni Belval Giovanni.belval@icloud.com"]
-licence = { file = "LICENCE" }
-requires-python = '>=3.12'
+name = "nl2sh"
+version = "0.1.0"
+description = "NL2SH tool using small language models."
+authors = [
+    { name = "Giovanni Belval", email = "giovanni.belval@icloud.com" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]",
     "uvicorn",
     "transformers",
-    "torch"
+    "torch",
+    "accelerate",
+    "rich"
 ]
+
+[project.scripts]
+nl2sh = 'nl2sh.cli:main'
