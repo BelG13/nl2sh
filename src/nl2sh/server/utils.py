@@ -8,7 +8,9 @@ def start_server():
     """Start the inference server."""
 
     current_dir = os.getcwd()
-    root_dir = os.path.dirname(os.path.abspath(__name__))
+    root_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."
+    )
     app_location = "src.nl2sh.server.server:app"
 
     os.chdir(root_dir)
@@ -19,8 +21,8 @@ def start_server():
             "uvicorn",
             app_location,
         ],
-        stdout=open(os.path.join(root_dir, "logs", "log_stdout.log"), "w"),
-        stderr=open(os.path.join(root_dir, "logs", "log_stderr.log"), "w"),
+        stdout=open(os.path.join("logs", "log_stdout.log"), "w"),
+        stderr=open(os.path.join("logs", "log_stderr.log"), "w"),
     )
     os.chdir(current_dir)
 
@@ -44,8 +46,8 @@ async def start_and_wait_server_startup():
                 await asyncio.sleep(2 ** (count := count + 1))
 
         except httpx.ConnectError:
-            print("Starting the inference server...")
             if not server_already_started:
+                print("Starting the inference server...")
                 start_server()
                 server_already_started = True
             await asyncio.sleep(2 ** (count := count + 1))
