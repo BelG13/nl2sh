@@ -1,6 +1,6 @@
 [project]
 name = "nl2sh"
-version = "0.1.1"
+version = "0.1.2"
 description = "NL2SH tool using small language models."
 authors = [
     { name = "Giovanni Belval", email = "giovanni.belval@icloud.com" }
