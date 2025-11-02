@@ -4,6 +4,9 @@ env/
 __pycache__/
 nl2sh.egg-info/
 logs/
+*.egg-info/
+dist/
+build/
 
 .env
 .DS_Store
