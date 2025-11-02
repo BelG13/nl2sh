@@ -3,6 +3,7 @@ venv/
 env/
 __pycache__/
 nl2sh.egg-info/
+logs/
 
 .env
 .DS_Store

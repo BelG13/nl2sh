@@ -14,7 +14,8 @@ dependencies = [
     "torch",
     "accelerate",
     "rich",
-    "json-repair"
+    "json-repair",
+    "peft"
 ]
 
 [project.scripts]

@@ -1,18 +1,29 @@
-import argparse
 import asyncio
 
-from nl2sh.utils import CLIArgs, cmd, display_cli_command
+from nl2sh.utils import cmd, display_cli_command
+from nl2sh.server.utils import start_and_wait_server_startup
+from rich import print
 
 
 def main():
     """Entry point of the cli tool."""
 
-    # Arguments parsing
-    parser = argparse.ArgumentParser()
-    _ = parser.add_argument("--prompt", type=str, help="Prompt to give to the SLM.")
-    args = CLIArgs(parser.parse_args())
+    # start and wait for the server.
+    # works fine when the server is already running.
+    asyncio.run(start_and_wait_server_startup())
 
-    # Tool calling
-    if args.prompt:
-        content_json = asyncio.run(cmd(args.prompt))
-        display_cli_command(content_json)
+    try:
+        while True:
+            print("\n> ", end="")
+            prompt = input()
+
+            # Tool calling
+            if prompt:
+                content_json = asyncio.run(cmd(prompt))
+                display_cli_command(content_json)
+            else:
+                print("\nOperation cancelled by user.")
+                break
+
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")

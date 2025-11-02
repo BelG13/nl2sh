@@ -1,19 +1,40 @@
 import asyncio
 
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import FastAPI, Request
+from starlette import status
 from nl2sh.models import (
     get_model_and_tokenizer,
     generate_stream,
 )
 
-model, tokenizer = get_model_and_tokenizer()
 app = FastAPI()
+
+server_ready = None
+model, tokenizer = None, None
+
+
+@app.on_event("startup")
+async def startup_event():
+    global model, tokenizer, server_ready
+    model, tokenizer = get_model_and_tokenizer()
+    server_ready = True
+
+
+@app.get("/api/ready")
+async def is_ready():
+    if not server_ready:
+        return {"status": "success", "is_ready": False}
+
+    return {"status": "success", "is_ready": True}
 
 
 @app.post("/api/generate-stream")
 async def generate_answer_stream(request: Request):
     """Stream the model response."""
+
+    if not server_ready:
+        return JSONResponse({"error": "Server is not ready yet"}, status_code=503)
 
     try:
         data = await request.json()

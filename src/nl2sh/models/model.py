@@ -1,20 +1,27 @@
 import threading
+import os
 
 from nl2sh.models.config import system_prompt
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
-from typing import Tuple
+from peft import PeftModel
 
 
-def get_model_and_tokenizer() -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
+def get_model_and_tokenizer() -> tuple[AutoTokenizer, AutoModelForCausalLM]:
     """Load the model and the tokenizer."""
 
     model_name = "Qwen/Qwen2.5-0.5B-Instruct"
+    adapter_path = os.path.join(
+        os.path.dirname(__name__), "src", "nl2sh", "models", "checkpoint-2050"
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    model = AutoModelForCausalLM.from_pretrained(
+    base_model = AutoModelForCausalLM.from_pretrained(
         model_name, device_map="auto", torch_dtype="auto"
     )
+    model = PeftModel.from_pretrained(base_model, adapter_path)
+    model.eval()
+
     return model, tokenizer
 
 

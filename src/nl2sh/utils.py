@@ -15,12 +15,6 @@ from rich.prompt import Confirm
 from rich.text import Text
 
 
-class CLIArgs:
-    def __init__(self, args: Namespace):
-        assert hasattr(args, "prompt")
-        self.prompt: str = args.prompt
-
-
 async def cmd(prompt: str):
     """Prompt the model to generate a command."""
 
@@ -106,7 +100,7 @@ def display_cli_command(response_data: Dict[str, Any]):
 
     main_panel = Panel(
         panel_content,
-        title="[bold cyan]🤖 NL2SH Command Center[/bold cyan]",
+        title="[bold cyan]NL2SH Command Center[/bold cyan]",
         border_style="cyan",
         padding=1,
     )
@@ -127,9 +121,9 @@ def display_cli_command(response_data: Dict[str, Any]):
         console.print("[bold red]❌ Execution cancelled by user.[/bold red]")
         return
 
-    console.print("\n[bold green]🚀 Executing...[/bold green]")
+    console.print("\n[bold green]Executing...[/bold green]")
     for cmd in commands:
-        console.print(f"▶️  Running: [yellow]{cmd}[/yellow]")
+        console.print(f"Running: [yellow]{cmd}[/yellow]")
 
         # Special handling for 'cd' remains
         if cmd.strip().startswith("cd "):
