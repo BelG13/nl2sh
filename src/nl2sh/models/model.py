@@ -10,9 +10,7 @@ def get_model_and_tokenizer() -> tuple[AutoTokenizer, AutoModelForCausalLM]:
     """Load the model and the tokenizer."""
 
     model_name = "Qwen/Qwen2.5-0.5B-Instruct"
-    adapter_path = os.path.join(
-        os.path.dirname(__name__), "src", "nl2sh", "models", "checkpoint-2050"
-    )
+    adapter_path = "BelGio13/Qwen2.5-0.5B-sft-nl2sh"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
