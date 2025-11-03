@@ -25,7 +25,7 @@ All processing happens **locally** — no external API calls, no data sent to th
 
 ## 🛠️ Installation
 
-> Instructions will be added once the model and package are publicly released.
+> pip install nl2sh
 
 
 ---
