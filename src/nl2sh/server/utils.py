@@ -2,29 +2,31 @@ import os
 import asyncio
 import httpx
 import subprocess
+import getpass
+
+from platformdirs import user_log_dir
 
 
 def start_server():
     """Start the inference server."""
 
-    current_dir = os.getcwd()
-    root_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."
-    )
-    app_location = "src.nl2sh.server.server:app"
+    # Get the standard log directory path
+    log_dir = user_log_dir("nl2sh", getpass.getuser())
+    os.makedirs(log_dir, exist_ok=True)
 
-    os.chdir(root_dir)
-    os.makedirs("logs", exist_ok=True)
+    app_location = "nl2sh.server.server:app"
+
+    log_stdout_path = os.path.join(log_dir, "log_stdout.log")
+    log_stderr_path = os.path.join(log_dir, "log_stdeer.log")
 
     process = subprocess.Popen(
         args=[
             "uvicorn",
             app_location,
         ],
-        stdout=open(os.path.join("logs", "log_stdout.log"), "w"),
-        stderr=open(os.path.join("logs", "log_stderr.log"), "w"),
+        stdout=open(log_stdout_path, "w"),
+        stderr=open(log_stderr_path, "w"),
     )
-    os.chdir(current_dir)
 
     print(f"Server process started with PID: {process.pid}.")
 

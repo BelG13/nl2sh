@@ -1,6 +1,6 @@
 [project]
 name = "nl2sh"
-version = "0.1.2"
+version = "0.1.3"
 description = "NL2SH tool using small language models."
 authors = [
     { name = "Giovanni Belval", email = "giovanni.belval@icloud.com" }
@@ -15,7 +15,8 @@ dependencies = [
     "accelerate",
     "rich",
     "json-repair",
-    "peft"
+    "peft",
+    "platformdirs"
 ]
 
 [project.scripts]
