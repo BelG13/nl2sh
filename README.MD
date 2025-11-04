@@ -66,12 +66,35 @@ To monitor the peak RAM consumed by the application during a session, run:
 python scripts/performance_eval/memory_eval.py
 ```
 
+Here is an example in my case (M4 Pro):
+```
+Starting script: 'python scripts/performance_eval/time_eval.py --verbose=0'
+Main process started with PID: 36640
+Monitoring RAM usage...
+Current Total RAM Usage: 1469.66 MB
+
+Script has finished.
+==================================================
+Maximum RAM Usage of the entire process tree: 1469.66 MB
+==================================================
+```
+
 ### Execution Speed
 
 To measure the average time taken from instruction to command generation, run:
 
 ```bash
 python scripts/performance_eval/time_eval.py
+```
+
+Here is a exemple in my case (M4 Pro):
+```
+============================== TIME EVALUATION ==============================
+Startup time : 6.061269998550415 seconds
+Average response time : 0.659301 ± 0.196201 seconds
+Average response length : 43.500000 ± 19.841036 seconds
+Average character per second : 65.978935 char/s
+============================== END TIME EVALUATION ==============================
 ```
 
 ---
@@ -92,7 +115,7 @@ python scripts/performance_eval/time_eval.py
 For more details about the models and the training details you can take a look at :
 
 -   **Base Model**: [Qwen2-0.5B-Instruct on Hugging Face](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct)
--   **Fine-tuned Adapters**: [Adapters on Hugging Face](https://huggingface.co/BelGio13/Qwen2.5-0.5B-sft-nl2sh/edit/main/README.md)
+-   **Fine-tuned Adapters**: [Adapters on Hugging Face](https://huggingface.co/BelGio13/Qwen2.5-0.5B-sft-nl2sh)
 -   **Fine-tuning results**: [Train and eval metrics values](https://wandb.ai/belv/nl2sh-sft)
 
 The model was trained on the [`nl2bash` dataset](https://github.com/TellinaTool/nl2bash), a curated collection of natural language prompts and their corresponding Bash commands.
