@@ -5,10 +5,15 @@ import subprocess
 import getpass
 
 from platformdirs import user_log_dir
+from typing import Literal
+
+pid = None
 
 
-def start_server():
+def start_server(verbose: Literal[True, False] = True):
     """Start the inference server."""
+
+    global pid
 
     # Get the standard log directory path
     log_dir = user_log_dir("nl2sh", getpass.getuser())
@@ -28,11 +33,15 @@ def start_server():
         stderr=open(log_stderr_path, "w"),
     )
 
-    print(f"Server process started with PID: {process.pid}.")
+    if verbose:
+        print(f"Server process started with PID: {process.pid}.")
+    pid = process.pid
 
 
-async def start_and_wait_server_startup():
+async def start_and_wait_server_startup(verbose: Literal[True, False] = True):
     """Wait till the inference server is on."""
+
+    global pid
 
     server_already_started = False
     count = 0
@@ -43,13 +52,14 @@ async def start_and_wait_server_startup():
                 response = response.json()
 
             if response["is_ready"]:
-                return True
+                return pid
             else:
                 await asyncio.sleep(2 ** (count := count + 1))
 
         except httpx.ConnectError:
             if not server_already_started:
-                print("Starting the inference server...")
-                start_server()
+                if verbose:
+                    print("Starting the inference server...")
+                start_server(verbose)
                 server_already_started = True
             await asyncio.sleep(2 ** (count := count + 1))
