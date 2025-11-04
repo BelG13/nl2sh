@@ -55,51 +55,6 @@ You can then **validate** (`y`) or **reject** (`n`) the command interactively.
 
 ---
 
-## 🚀 Performance Evaluation
-
-We provide scripts to evaluate the model's performance on your machine.
-
-### Memory Usage
-
-To monitor the peak RAM consumed by the application during a session, run:
-
-```bash
-python scripts/performance_eval/memory_eval.py
-```
-
-Here is an example in my case (M4 Pro):
-```
-Starting script: 'python scripts/performance_eval/time_eval.py --verbose=0'
-Main process started with PID: 36640
-Monitoring RAM usage...
-Current Total RAM Usage: 1469.66 MB
-
-Script has finished.
-==================================================
-Maximum RAM Usage of the entire process tree: 1469.66 MB
-==================================================
-```
-
-### Execution Speed
-
-To measure the average time taken from instruction to command generation, run:
-
-```bash
-python scripts/performance_eval/time_eval.py
-```
-
-Here is a exemple in my case (M4 Pro):
-```
-============================== TIME EVALUATION ==============================
-Startup time : 6.061269998550415 seconds
-Average response time : 0.659301 ± 0.196201 seconds
-Average response length : 43.500000 ± 19.841036 seconds
-Average character per second : 65.978935 char/s
-============================== END TIME EVALUATION ==============================
-```
-
----
-
 ## 🗺️ Roadmap
 
 | Feature | Description |
@@ -138,6 +93,51 @@ source venv/bin/activate  # (use venv\Scripts\activate on Windows)
 
 # Install in editable mode
 pip install -e .
+```
+
+---
+
+### 🚀 Performance Evaluation
+
+We provide scripts to evaluate the model's performance on your machine.
+
+#### Memory Usage
+
+To monitor the peak RAM consumed by the application during a session, run:
+
+```bash
+python scripts/performance_eval/memory_eval.py
+```
+
+Here is an example in my case (M4 Pro):
+```
+Starting script: 'python scripts/performance_eval/time_eval.py --verbose=0'
+Main process started with PID: 36640
+Monitoring RAM usage...
+Current Total RAM Usage: 1469.66 MB
+
+Script has finished.
+==================================================
+Maximum RAM Usage of the entire process tree: 1469.66 MB
+==================================================
+```
+
+### Execution Speed
+
+To measure the average time taken from instruction to command generation, run:
+
+```bash
+python scripts/performance_eval/time_eval.py
+```
+
+Here is a exemple in my case (M4 Pro):
+```
+============================== TIME EVALUATION ==============================
+Startup time : 6.061269998550415 seconds
+Average response time : 0.659301 ± 0.196201 seconds
+Average response length : 43.500000 ± 19.841036 seconds
+Average character per second : 65.978935 char/s
+============================== END TIME EVALUATION ==============================
 ```
 
 Feel free to open issues or submit pull requests.
