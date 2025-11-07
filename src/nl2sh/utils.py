@@ -116,6 +116,12 @@ def display_cli_command(prompt: str):
         console.print(main_panel)
 
         try:
+            # Describe each option
+            console.print("\n[bold]Available actions:[/bold]")
+            console.print("[green]y[/green]: Execute the command(s)")
+            console.print("[red]n[/red]: Cancel")
+            console.print("[yellow]r[/yellow]: Regenerate the command(s)")
+
             user_confirmation = Prompt.ask(
                 "\nDo you want to execute the command(s)?",
                 default="n",

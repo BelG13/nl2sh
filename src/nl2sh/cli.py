@@ -18,9 +18,10 @@ def main():
             prompt = input()
 
             # API calls and rendering
-            if prompt.lower() in ["quit", "exit", "stop", ""]:
-                print("\nPersonal assistant closed.")
+            if prompt.lower() in ["quit", "exit", "stop"]:
                 return
+            elif prompt == "":
+                continue
             else:
                 display_cli_command(prompt)
 
