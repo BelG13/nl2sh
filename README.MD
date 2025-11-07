@@ -60,7 +60,7 @@ You can then **validate** (`y`) or **reject** (`n`) the command interactively.
 | Feature | Description |
 | :--- | :--- |
 | 🧠 **User Context Awareness** | Allow the model to remember past commands within a session to adapt future generations to your workflow. |
-| 🔁 **Mistake Regeneration** | If a generated command is incorrect, you'll be able to trigger a refined version without re-typing the query. |
+| 🔁 **Feedback** | If a generated command is incorrect, you'll be able to provide a feedback (the actual command if known) in order to improve the model during later finetuning. |
 | 🎯 **Improved Fine-Tuning** | The next training round will focus on realistic, everyday developer commands for tools (ex. `git`, `docker`, `aws`, `conda`, `kubectl`, `ffmpeg`) and a more natural language than the one the model have been finetuned on. |
 | ⚙️ **Configurable Models** | Add a configuration file to allow users to specify different local models or LoRA adapters, enabling those with more powerful hardware (CPU/GPU) to leverage larger models. |
 
