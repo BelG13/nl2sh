@@ -1,6 +1,6 @@
 import asyncio
 
-from nl2sh.utils import cmd, display_cli_command
+from nl2sh.utils import display_cli_command
 from nl2sh.server.utils import start_and_wait_server_startup
 from rich import print
 
@@ -17,13 +17,16 @@ def main():
             print("\n> ", end="")
             prompt = input()
 
-            # Tool calling
-            if prompt:
-                content_json = asyncio.run(cmd(prompt))
-                display_cli_command(content_json)
+            # API calls and rendering
+            if prompt.lower() in ["quit", "exit", "stop"]:
+                return
+            elif prompt == "":
+                continue
             else:
-                print("\nOperation cancelled by user.")
-                break
+                display_cli_command(prompt)
 
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.")
+
+    except Exception as e:
+        print(f"{type(e)}: {e}")
