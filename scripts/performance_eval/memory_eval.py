@@ -5,6 +5,10 @@ import time
 import os
 
 
+class NoSuchProcess(Exception):
+    pass
+
+
 def monitor_external_script(script_to_run: list[str], verbose: bool = True):
     """
     Executes a given Python script and monitors the total RAM usage of its entire process tree.
@@ -16,7 +20,7 @@ def monitor_external_script(script_to_run: list[str], verbose: bool = True):
     if not os.path.exists(script_to_run[1]):
         if verbose:
             print(f"Error: The script '{script_to_run[1]}' was not found.")
-        return
+        raise FileNotFoundError(f"{script_to_run[1]}")
 
     if verbose:
         print(f"Starting script: '{' '.join(script_to_run)}'")
@@ -33,7 +37,7 @@ def monitor_external_script(script_to_run: list[str], verbose: bool = True):
     except (psutil.NoSuchProcess, FileNotFoundError) as e:
         if verbose:
             print(f"Error starting process: {e}")
-        return
+        raise NoSuchProcess("Error when starting the main process")
 
     max_ram_usage = 0
     if verbose:
@@ -100,19 +104,30 @@ def monitor_external_script(script_to_run: list[str], verbose: bool = True):
             print("=" * 50)
 
 
-if __name__ == "__main__":
+def memory_eval(verbose: bool | None = True):
     # For downstream tasks (ex. Memory evaluation)
     # we don't want this model to have any verbosity.
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        choices=[0, 1],
-        default=1,
-        help="Verbosity level of the evaluation script.",
-    )
-    args = parser.parse_args()
-    monitor_external_script(
-        ["python", "scripts/performance_eval/time_eval.py", "--verbose=0"],
-        verbose=(args.verbose == 1),
-    )
+
+    if verbose is None:
+        parser = argparse.ArgumentParser()
+        _ = parser.add_argument(
+            "--verbose",
+            type=int,
+            choices=[0, 1],
+            default=1,
+            help="Verbosity level of the evaluation script.",
+        )
+        args = parser.parse_args()
+        verbose: bool = args.verbose == 1
+    try:
+        monitor_external_script(
+            ["python", "scripts/performance_eval/time_eval.py", "--verbose=0"],
+            verbose=verbose,
+        )
+        return True
+    except Exception as e:
+        return False
+
+
+if __name__ == "__main__":
+    memory_eval()
