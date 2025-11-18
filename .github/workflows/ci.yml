@@ -1,0 +1,45 @@
+name: CI / Tests
+
+# Triggers the workflow on push and pull request events
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    # Runs the workflow whenever a PR is opened, synchronized, or ready for review
+    branches:
+      - main
+    types: [ opened, synchronize, reopened ]
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    # Use a matrix to test across different Python versions
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        # Action to pull the code from the repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        # Action to set up the chosen Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          # Caches dependencies to speed up future runs
+          cache: 'pip' 
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install Package and Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+
+      - name: 🧪 Run Pytest
+        run: |
+          pytest -v
