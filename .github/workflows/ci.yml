@@ -33,12 +33,6 @@ jobs:
           # Keep this line, but make sure the dependency file is listed for caching
           cache: 'pip' 
           cache-dependency-path: pyproject.toml 
-
-      - name: 📦 Install Package and Dependencies
-        # This step is the same as before
-        run: |
-          pip install --upgrade pip
-          pip install -e .
           
       # 🚀 Caching large dependencies
       - name: 💾 Cache PyTorch and large packages
@@ -55,6 +49,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e .
+          pip install pytest
 
       - name: 🧪 Run Pytest
         run: |
