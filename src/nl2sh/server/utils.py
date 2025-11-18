@@ -45,7 +45,7 @@ async def start_and_wait_server_startup(verbose: Literal[True, False] = True):
 
     server_already_started = False
     count = 0
-    while True:
+    while count < 10:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get("http://127.0.0.1:8000/api/ready")
