@@ -6,7 +6,7 @@ import signal
 import json
 import argparse
 
-from nl2sh.utils import cmd
+from nl2sh.utils import get_commands
 from nl2sh.server.utils import start_and_wait_server_startup
 from typing import Literal
 
@@ -37,7 +37,7 @@ def run_eval(verbose: Literal[True, False] = True):
     for prompt in prompts:
         try:
             start_time = time.time()
-            json_response = asyncio.run(cmd(prompt))
+            json_response = asyncio.run(get_commands(prompt))
             times.append(time.time() - start_time)
             char_count.append(len(json.dumps(json_response)))
 
