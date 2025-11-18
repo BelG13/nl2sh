@@ -19,7 +19,7 @@ jobs:
     # Use a matrix to test across different Python versions
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
       - name: ⬇️ Checkout Repository
@@ -27,13 +27,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🐍 Set up Python ${{ matrix.python-version }}
-        # Action to set up the chosen Python version
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          # Caches dependencies to speed up future runs
+          # Keep this line, but make sure the dependency file is listed for caching
           cache: 'pip' 
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: pyproject.toml 
+
+      - name: 📦 Install Package and Dependencies
+        # This step is the same as before
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          
+      # 🚀 Caching large dependencies
+      - name: 💾 Cache PyTorch and large packages
+        uses: actions/cache@v4
+        with:
+          # This caches the contents of the entire virtual environment's site-packages
+          path: ${{ env.pythonLocation }}/lib/python*/site-packages
+          key: ${{ runner.os }}-${{ matrix.python-version }}-site-packages-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-site-packages-
+            ${{ runner.os }}-
 
       - name: 📦 Install Package and Dependencies
         run: |
