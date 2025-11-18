@@ -6,21 +6,32 @@ import signal
 import json
 import argparse
 
-from nl2sh.utils import cmd
+from nl2sh.utils import get_commands
 from nl2sh.server.utils import start_and_wait_server_startup
 from typing import Literal
 
 
-def run_eval(verbose: Literal[True, False] = True):
+class StartupServorError(Exception):
+    pass
+
+
+class FailedInferenceError(Exception):
+    pass
+
+
+def compute_metrics(verbose: bool = True):
     """Entry point of the cli tool."""
 
     if verbose:
         print("\n", "=" * 30 + " TIME EVALUATION " + "=" * 30)
 
     # start and wait for the server.
-    start_time = time.time()
-    pid = asyncio.run(start_and_wait_server_startup(verbose=False))
-    startup_time = time.time() - start_time
+    try:
+        start_time = time.time()
+        pid = asyncio.run(start_and_wait_server_startup(verbose=False))
+        startup_time = time.time() - start_time
+    except Exception as e:
+        raise StartupServorError("Inference server could not be started")
 
     # We run our test on the following prompt list.
     prompts = [
@@ -37,7 +48,7 @@ def run_eval(verbose: Literal[True, False] = True):
     for prompt in prompts:
         try:
             start_time = time.time()
-            json_response = asyncio.run(cmd(prompt))
+            json_response = asyncio.run(get_commands(prompt))
             times.append(time.time() - start_time)
             char_count.append(len(json.dumps(json_response)))
 
@@ -50,6 +61,9 @@ def run_eval(verbose: Literal[True, False] = True):
     os.kill(pid, signal.SIGTERM)
 
     # get time statistics
+    if len(times) == 0:
+        raise FailedInferenceError("All the inference attempt failed.")
+
     times = torch.Tensor(times)
     average_response_time = times.mean()
     std_response_time = times.std()
@@ -79,16 +93,27 @@ def run_eval(verbose: Literal[True, False] = True):
     }
 
 
-if __name__ == "__main__":
+def time_eval(verbose: bool | None = None):
     # For downstream tasks (ex. Memory evaluation)
     # we don't want this model to have any verbosity.
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        choices=[0, 1],
-        default=1,
-        help="Verbosity level of the evaluation script.",
-    )
-    args = parser.parse_args()
-    run_eval(args.verbose)
+    if verbose is None:
+        parser = argparse.ArgumentParser()
+        _ = parser.add_argument(
+            "--verbose",
+            type=int,
+            choices=[0, 1],
+            default=1,
+            help="Verbosity level of the evaluation script.",
+        )
+        args = parser.parse_args()
+        verbose = args.verbose == 1
+    try:
+        compute_metrics(verbose)
+        return True
+
+    except Exception as e:
+        return False
+
+
+if __name__ == "__main__":
+    time_eval()
